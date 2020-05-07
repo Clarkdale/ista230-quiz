@@ -1,0 +1,28 @@
+.main-wrapper {
+    margin: 0 10% 0 10%;
+}
+
+a {
+    margin: 2%;
+}
+
+#quiz_body {
+    display: flex;
+    flex-direction: row;
+}
+
+.quizImage {
+    width: 200px;
+    height: 200px;
+}
+
+.questionOption {
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid;
+}
+
+.pickOption {
+    text-decoration: underline;
+    cursor: pointer;
+}

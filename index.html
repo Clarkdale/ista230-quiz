@@ -1,0 +1,67 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quizzes</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Quizzes">
+  <meta name="author" content="Clark Penado">
+</head>
+<body onload="fillQuizzes();">
+    <div class="main-wrapper">
+        <h2>Image Quizzes</h2>
+        <hr>
+        <div id="quiz_list"></div>
+    </div>
+<script type="text/javascript">
+    var url = "http://localhost:3001";
+    function fillQuizzes() {
+        let listSection = document.getElementById('quiz_list');
+        fetch(`${url}/categories`)
+          .then(response => { 
+            return response.json() 
+          })
+          .then(stuff => { 
+              listSection.innerHTML = "";
+              for (let i = 0; i < stuff.length; i++) {
+                  listSection.innerHTML += "<h4>"
+                  listSection.innerHTML += stuff[i].name;
+                  listSection.innerHTML += "</h4>"
+                  listSection.innerHTML += `<div id=${stuff[i].id} class="quizSection">`
+                  listSection.innerHTML += "</div>"
+                  listSection.innerHTML += "<hr>"
+              }
+          })
+          .then(n => {
+              let sections = document.getElementsByClassName("quizSection");
+              let curr;
+              for (let i = 0; i < sections.length; i++) {
+                  let curr = document.getElementById(sections[i].id);
+                  fetch(`${url}/quizCategory/${sections[i].id}`)
+                    .then(response => {
+                        return response.json()
+                    })
+                    .then(f => {
+                        for (let i = 0; i < f.length; i++) {
+                            curr.innerHTML += `<a onclick='customAnchor(${f[i].id}); return false' class="pickOption">${f[i].title}</a>`
+                        }
+                    });
+              }
+          });
+    }
+
+    function customAnchor(id) {
+        console.log(id);
+        
+        fetch(`${url}/quiz/${id}`)
+            .then(response => {
+                return response.text();
+            })
+            .then(x => {
+                window.location.href = x;
+            });
+    }
+</script>
+</body>
+</html>

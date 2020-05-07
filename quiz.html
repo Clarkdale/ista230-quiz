@@ -1,0 +1,104 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quizzes</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Quizzes">
+  <meta name="author" content="Clark Penado">
+</head>
+<body onload="renderInit()">
+    <div class="main-wrapper">
+        <h2 id="heading"></h2>
+        <h4 id="score"></h4>
+        <hr>
+        <div id="quiz_body">
+        </div>
+        <a href='index.html'>Home</a>
+    </div>
+<script type="text/javascript">
+    let url = "http://localhost:3001";
+    let currentAnswered = false;
+    function renderInit() {
+        fetch(`${url}/currentQuiz`)
+            .then(response => {
+                return response.json()
+            })
+            .then(result => {
+                document.getElementById("heading").innerHTML = `Quiz: ${result[0].title}`
+                renderQuestion();
+            })
+
+        fetch(`${url}/correctCount`)
+            .then(response => response.text())
+            .then(f => {
+                document.getElementById("score").innerHTML = `${f}/6`
+            });
+    }
+
+    function renderQuestion() {
+        let body = document.getElementById("quiz_body");
+        fetch(`${url}/currentQuestionImage`)
+            .then(response => {
+                return response.text();
+            })
+            .then(result => {
+                body.innerHTML = "";
+                if (result !== "end") {
+                    
+                    body.innerHTML += `<img src="./img/${result}"" alt="ImageQuestion" class="quizImage">`;
+                }
+            })
+            .then(x => {
+                fetch(`${url}/currentQuestionInfo`)
+                    .then(response => {
+                        return response.json()
+                    })
+                    .then(final => {
+                        console.log(final);
+                        if (final !== "end") {
+                            console.log();
+                            body.innerHTML += `<div class="questions" style="display: flex; flex-direction: row;">`
+                            body.innerHTML += `<button onclick="checkAnswer('${final.option1}'); return false" class="questionOption" id="${final.option1}">${final.option1}</button>`
+                            body.innerHTML += `<button onclick="checkAnswer('${final.option2}'); return false" class="questionOption" id="${final.option2}">${final.option2}</button>`
+                            body.innerHTML += `<button onclick="checkAnswer('${final.option3}'); return false" class="questionOption" id="${final.option3}">${final.option3}</button>`
+                            body.innerHTML += "</div>"
+                            body.innerHTML += `<button onclick="next(); return false" class="nextButton">Next</button>`
+                        }
+                    })
+            })
+    }
+
+    function checkAnswer(val) {
+        fetch(`${url}/checkAnswer/${val}`)
+            .then(response => {
+                return response.text();
+            })
+            .then(final => {
+                    let options = document.getElementsByClassName("questionOption");
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].id === val && !currentAnswered) {
+                            options[i].style.backgroundColor = final === "true" ? "green" : "red";
+                            currentAnswered = true;
+                        }
+                    }
+                
+                fetch(`${url}/correctCount`)
+                    .then(response => response.text())
+                    .then(f => {
+                        document.getElementById("score").innerHTML = `${f}/6`
+                    });
+            });
+        }
+
+    function next() {
+        fetch(`${url}/next`)
+            .then(response => {
+                currentAnswered = false;
+                renderQuestion();
+            })
+    }
+</script>
+</body>
+</html>
